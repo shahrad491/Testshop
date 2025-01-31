@@ -1,0 +1,23 @@
+{
+  "name": "mern-ecomerce",
+  "version": "1.0.0",
+  "description": "This is a test for myself",
+  "license": "ISC",
+  "author": "SJS",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "install": "concurrently \"npm run install-server\" \"npm run install-client \"",
+    "install-server": "npm install --prefix backend",
+    "install-client": "npm install --prefix frontend",
+    "server": "npm run server --prefix backend",
+    "client": "npm start --prefix frontend",
+    "application": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "colors": "^1.4.0"
+  }
+}
