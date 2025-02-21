@@ -9,6 +9,7 @@ import { notFound, errorHandler } from "./services/errorHandler.js";
 
 import productRouter from "./routes/product.router.js";
 import userRouter from "./routes/user.router.js";
+import orderRouter from "./routes/order.router.js";
 
 connectDB();
 const app = express();
@@ -32,6 +33,11 @@ app.get("/", (req, res, next) => {
 
 app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
+app.use("/api/orders", orderRouter);
+
+app.get("/api/config/zarin", (req, res, next) => {
+  res.send(process.env.MERCHENT_ID);
+});
 
 app.use(notFound);
 app.use(errorHandler);
