@@ -41,6 +41,9 @@ const CartScreen = () => {
 
   return (
     <>
+      <Link to={"/"}>
+        <Button className="btn btn-light my-3">Go To Home Screen</Button>
+      </Link>
       <Row>
         <Col md={8}>
           <h1 style={{ marginBottom: "20px" }}>Shopping Cart</h1>

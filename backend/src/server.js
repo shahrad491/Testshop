@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -10,6 +11,7 @@ import { notFound, errorHandler } from "./services/errorHandler.js";
 import productRouter from "./routes/product.router.js";
 import userRouter from "./routes/user.router.js";
 import orderRouter from "./routes/order.router.js";
+import uploadRouter from "./routes/upload.router.js";
 
 connectDB();
 const app = express();
@@ -34,10 +36,15 @@ app.get("/", (req, res, next) => {
 app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/upload", uploadRouter);
 
 app.get("/api/config/zarin", (req, res, next) => {
   res.send(process.env.MERCHENT_ID);
 });
+
+const __dirname = path.resolve();
+console.log(path.join(__dirname, "..", "uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.use(notFound);
 app.use(errorHandler);

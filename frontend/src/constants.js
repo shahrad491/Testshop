@@ -7,3 +7,4 @@ export const USERS_URL = "/api/users";
 export const ORDERS_URL = "/api/orders";
 export const PRODUCT_URL = "/api/products";
 export const ZARIN_URL = "/api/config/zarin";
+export const UPLOAD_URL = "/api/upload";
