@@ -44,7 +44,7 @@ app.get("/api/config/zarin", (req, res, next) => {
 
 const __dirname = path.resolve();
 console.log(path.join(__dirname, "..", "uploads"));
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(notFound);
 app.use(errorHandler);

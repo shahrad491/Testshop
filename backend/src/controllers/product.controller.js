@@ -87,9 +87,74 @@ const httpUpdateProducts = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @desc Delete a products
+// @route /api/products/:id
+// @method Delete
+// @access Private/Admin
+const httpDeleteProducts = asyncHandler(async (req, res, next) => {
+  const product = await Product.findByIdAndDelete(req.params.id);
+
+  if (product) {
+    res.status(200).setHeader("Content-Type", "application/json").json({
+      message: "Product was deleted Successfully",
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      countInStock: product.countInStock,
+      brand: product.brand,
+      category: product.category,
+    });
+  } else {
+    res.status(404);
+    throw new Error("Product was not Found");
+  }
+});
+
+// @desc Create a New Review
+// @route /api/products/:id/reviews
+// @method POST
+// @access Private
+const httpCreateProductReview = asyncHandler(async (req, res, next) => {
+  const { rating, comment } = req.body;
+
+  const product = await Product.findByIdAndDelete(req.params.id);
+
+  if (product) {
+    const alreadyReviewed = product.reviews.find((review) => {
+      review.user.toString() === req.user._id.toString();
+    });
+    if (alreadyReviewed) {
+      res.status(409);
+      throw new Error("Product is already reviewed by the User");
+    }
+    const review = {
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+    };
+    product.reviews.push(review);
+    product.numReviews = product.reviews.length;
+
+    product.rating =
+      product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      product.reviews.length;
+
+    await product.save();
+
+    res.status(201).setHeader("Content-Type", "application/json").json({
+      message: "Product review was Created Successfully",
+    });
+  } else {
+    res.status(404);
+    throw new Error("Product was not Found");
+  }
+});
 export {
   httpGetAllProducts,
   httpGetOneProduct,
   httpCreateProduct,
   httpUpdateProducts,
+  httpDeleteProducts,
+  httpCreateProductReview,
 };

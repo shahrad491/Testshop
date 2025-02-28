@@ -101,7 +101,7 @@ const ProductEditScreen = () => {
         ) : productErr ? (
           <Message varient="danger">{productErr}</Message>
         ) : (
-          <Form onSubmit={submitHandler}>
+          <Form onSubmit={submitHandler} enctype="multipart/form-data">
             <Form.Group controlId="name">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -143,6 +143,7 @@ const ProductEditScreen = () => {
                 type="file"
                 lable="Choose File"
                 onChange={uploadFileHandler}
+                name="uploadImage"
               ></Form.Control>
             </Form.Group>
 
