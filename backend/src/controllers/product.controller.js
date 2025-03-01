@@ -1,13 +1,23 @@
 import Product from "../models/product.mongo.js";
 import asyncHandler from "../services/asyncHandler.js";
+import { pSize } from "../services/pagination.js";
 
 // @desc Fetch all products
 // @route /api/products
 // @method GET
 // @access Public
 const httpGetAllProducts = asyncHandler(async (req, res, next) => {
-  const products = await Product.find({});
-  res.status(200).setHeader("Content-Type", "application/json").json(products);
+  const pageSize = pSize;
+  const page = Number(req.query.pageNumber) || 1;
+  const count = await Product.countDocuments();
+
+  const products = await Product.find({})
+    .limit(pageSize)
+    .skip((page - 1) * pageSize);
+  res
+    .status(200)
+    .setHeader("Content-Type", "application/json")
+    .json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
 // @desc Fetch all products
