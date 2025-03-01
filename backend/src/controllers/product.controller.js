@@ -9,18 +9,24 @@ import { pSize } from "../services/pagination.js";
 const httpGetAllProducts = asyncHandler(async (req, res, next) => {
   const pageSize = pSize;
   const page = Number(req.query.pageNumber) || 1;
-  const count = await Product.countDocuments();
 
-  const products = await Product.find({})
+  const keyword = req.query.keyword
+    ? { name: { $regex: req.query.keyword, $options: "i" } }
+    : {};
+
+  const count = await Product.countDocuments({ ...keyword });
+
+  const products = await Product.find({ ...keyword })
     .limit(pageSize)
     .skip((page - 1) * pageSize);
+
   res
     .status(200)
     .setHeader("Content-Type", "application/json")
     .json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
-// @desc Fetch all products
+// @desc Fetch a products
 // @route /api/products/:id
 // @method GET
 // @access Public
@@ -160,6 +166,20 @@ const httpCreateProductReview = asyncHandler(async (req, res, next) => {
     throw new Error("Product was not Found");
   }
 });
+
+// @desc Get top rated products
+// @route /api/products/top
+// @method GET
+// @access Public
+const httpGetTopProduct = asyncHandler(async (req, res, next) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  if (!products) {
+    res.status(404).setHeader("Content-Type", "application/json");
+    throw new Error("Resource Was Not FOUND");
+  }
+  res.status(200).setHeader("Content-Type", "application/json").json(products);
+});
+
 export {
   httpGetAllProducts,
   httpGetOneProduct,
@@ -167,4 +187,5 @@ export {
   httpUpdateProducts,
   httpDeleteProducts,
   httpCreateProductReview,
+  httpGetTopProduct,
 };

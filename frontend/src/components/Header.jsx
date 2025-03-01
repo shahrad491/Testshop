@@ -7,6 +7,7 @@ import logo from "../assets/logo.png";
 import { useLogoutMutation } from "../slices/userApi.slice.js";
 import { logout } from "../slices/auth.slice.js";
 import { clearCartItems } from "../slices/cart.slice.js";
+import SearchBox from "./SearchBox.jsx";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
+              <SearchBox />
               <Nav.Link as={Link} to="/cart">
                 <FaShoppingCart /> Cart
                 {cartItems.length > 0 && (

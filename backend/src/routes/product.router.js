@@ -7,6 +7,7 @@ import {
   httpUpdateProducts,
   httpDeleteProducts,
   httpCreateProductReview,
+  httpGetTopProduct,
 } from "../controllers/product.controller.js";
 import { protect, admin } from "../services/authHandler.js";
 
@@ -16,6 +17,8 @@ productRouter
   .route("/")
   .get(httpGetAllProducts)
   .post(protect, admin, httpCreateProduct);
+
+productRouter.route("/top").get(httpGetTopProduct);
 
 productRouter
   .route("/:id")
