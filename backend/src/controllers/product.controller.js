@@ -117,12 +117,12 @@ const httpDeleteProducts = asyncHandler(async (req, res, next) => {
 const httpCreateProductReview = asyncHandler(async (req, res, next) => {
   const { rating, comment } = req.body;
 
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findById(req.params.id);
 
   if (product) {
-    const alreadyReviewed = product.reviews.find((review) => {
-      review.user.toString() === req.user._id.toString();
-    });
+    const alreadyReviewed = product.reviews.find(
+      (res) => res.user.toString() == req.user._id.toString()
+    );
     if (alreadyReviewed) {
       res.status(409);
       throw new Error("Product is already reviewed by the User");
