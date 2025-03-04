@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Table, Form, Button, Row, Col } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { FaTimes } from "react-icons/fa";
@@ -19,7 +19,7 @@ const ProfileScreen = () => {
 
   const dispatch = useDispatch();
 
-  const [updateProfile, { isLoading, isError }] = useProfileMutation();
+  const [updateProfile, { isLoading }] = useProfileMutation();
 
   const {
     data: orders,

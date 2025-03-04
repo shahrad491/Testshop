@@ -32,10 +32,8 @@ const ProductEditScreen = () => {
     refetch,
   } = useGetProductDetailQuery(productId);
 
-  const [
-    updateProduct,
-    { isLoading: loadingUpdateProduct, error: updateProductErr },
-  ] = useUpdateProductMutation();
+  const [updateProduct, { isLoading: loadingUpdateProduct }] =
+    useUpdateProductMutation();
 
   const [uploadProductImg, { isLoading: loadingUploadImg }] =
     useUploadProductImageMutation();
@@ -146,6 +144,7 @@ const ProductEditScreen = () => {
                 name="uploadImage"
               ></Form.Control>
             </Form.Group>
+            {loadingUploadImg && <Loader />}
 
             <Form.Group controlId="brand" className="my-2">
               <Form.Label>Brand</Form.Label>

@@ -21,6 +21,7 @@ import {
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { addToCart } from "../slices/cart.slice";
+import Meta from "../components/Meta";
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
@@ -64,6 +65,7 @@ const ProductScreen = () => {
 
   return (
     <>
+      <Meta title={product?.name} />
       {isLoading ? (
         <Loader />
       ) : error ? (

@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Meta from "./components/Meta";
 
 const App = () => {
   const location = useLocation();
@@ -12,6 +13,7 @@ const App = () => {
   return (
     <>
       <Header />
+      <Meta />
       <main className="py-3">
         <Container>
           {location.pathname === "/" ? <h1>Welcome to ProShop</h1> : ""}
