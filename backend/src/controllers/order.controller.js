@@ -1,45 +1,45 @@
 import asyncHandler from "../services/asyncHandler.js";
-import Order from "../models/order.mongo.js";
+import {
+  createOrderItems,
+  getUserOrders,
+  getOrderById,
+  updateToPaid,
+  updateToDelivered,
+  allOrders,
+} from "../models/order.model.js";
 
 // @desc Create a new Order
 // @route /api/orders
 // @method POST
 // @access Private
-const createOrderItems = asyncHandler(async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-  } = req.body;
-
-  if (orderItems && orderItems.length === 0) {
+const httpCreateOrderItems = asyncHandler(async (req, res) => {
+  const data = req.body;
+  if (
+    !data.orderItems ||
+    !data.shippingAddress ||
+    !data.paymentMethod ||
+    !data.itemsPrice ||
+    !data.taxPrice ||
+    !data.shippingPrice ||
+    !data.totalPrice
+  ) {
+    res.status(406);
+    throw new Error("Fill the required fields");
+  }
+  if (data.orderItems && data.orderItems.length === 0) {
     res.status(406);
     throw new Error("No order items");
-  } else {
-    const order = new Order({
-      orderItems: orderItems.map((x) => ({
-        ...x,
-        product: x._id,
-        _id: undefined,
-      })),
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-    });
-    const createdOrder = await order.save();
+  }
 
+  try {
+    const createdOrder = await createOrderItems(req);
     res
       .status(201)
       .setHeader("Content-Type", "application/json")
       .json(createdOrder);
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
   }
 });
 
@@ -47,14 +47,21 @@ const createOrderItems = asyncHandler(async (req, res) => {
 // @route /api/orders/myorders
 // @method GET
 // @access Private
-const getMyOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
-
-  if (!orders) {
-    res.status(404);
-    throw new Error("No orders was found for this user");
-  } else {
-    res.status(200).setHeader("Content-Type", "application/json").json(orders);
+const httpgetMyOrders = asyncHandler(async (req, res) => {
+  try {
+    const orders = await getUserOrders(req.user._id);
+    if (!orders) {
+      res.status(404);
+      throw new Error("No orders was found for this user");
+    } else {
+      res
+        .status(200)
+        .setHeader("Content-Type", "application/json")
+        .json(orders);
+    }
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
   }
 });
 
@@ -62,15 +69,20 @@ const getMyOrders = asyncHandler(async (req, res) => {
 // @route /api/orders/:id
 // @method GET
 // @access Private
-const getOrderById = asyncHandler(async (req, res) => {
-  const orderId = req.params.id;
-  const order = await Order.findById(orderId).populate("user", "name email");
+const httpGetOrderById = asyncHandler(async (req, res) => {
+  const id = req.params.id;
 
-  if (!order) {
-    res.status(404);
-    throw new Error("no order found with this id");
-  } else {
-    res.status(200).setHeader("Content-Type", "application/json").json(order);
+  try {
+    const order = await getOrderById(id);
+    if (!order) {
+      res.status(404);
+      throw new Error("no order found with this id");
+    } else {
+      res.status(200).setHeader("Content-Type", "application/json").json(order);
+    }
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
   }
 });
 
@@ -78,26 +90,16 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @route /api/orders/:id/pay
 // @method PUT
 // @access Private
-const updateOrderToPaid = asyncHandler(async (req, res) => {
+const httpUpdateOrderToPaid = asyncHandler(async (req, res) => {
   const orderId = req.params.id;
-  const order = await Order.findById(orderId);
-  if (order) {
-    order.isPaid = true;
-    order.paidAt = Date.now();
-    order.paymentResult = {
-      id: req.body.id,
-      status: req.body.status,
-      update_time: req.body.update_time,
-      email_address: req.body.email_address,
-    };
-
-    const updatedOrder = await order.save();
+  try {
+    const updatedOrder = await updateToPaid(orderId, req.body);
 
     res
       .status(200)
       .setHeader("Content-Type", "application/json")
       .json(updatedOrder);
-  } else {
+  } catch (error) {
     res.status(404);
     throw new Error("Order not found");
   }
@@ -107,18 +109,15 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
 // @route /api/orders/:id/deliver
 // @method PUT
 // @access Private/Admin
-const updateOrderToDelivered = asyncHandler(async (req, res) => {
+const httpUpdateOrderToDelivered = asyncHandler(async (req, res) => {
   const orderId = req.params.id;
-  const order = await Order.findById(orderId);
-  if (order) {
-    order.isDelivered = true;
-    order.deliveredAt = Date.now();
-    const updatedOrder = await order.save();
+  try {
+    const updatedOrder = await updateToDelivered(orderId);
     res
       .status(200)
       .setHeader("Content-Type", "application/json")
       .json(updatedOrder);
-  } else {
+  } catch (error) {
     res.status(404);
     throw new Error("Order not Found");
   }
@@ -128,16 +127,21 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
 // @route /api/orders
 // @method GET
 // @access Private/Admin
-const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find().populate("user", "id name");
-  res.status(200).setHeader("Content-Type", "application/json").json(orders);
+const httpGetAllOrders = asyncHandler(async (req, res) => {
+  try {
+    const orders = await allOrders();
+    res.status(200).setHeader("Content-Type", "application/json").json(orders);
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
+  }
 });
 
 export {
-  createOrderItems,
-  getMyOrders,
-  getOrderById,
-  updateOrderToPaid,
-  updateOrderToDelivered,
-  getAllOrders,
+  httpCreateOrderItems,
+  httpgetMyOrders,
+  httpGetOrderById,
+  httpUpdateOrderToPaid,
+  httpUpdateOrderToDelivered,
+  httpGetAllOrders,
 };

@@ -1,12 +1,12 @@
 import express from "express";
 
 import {
-  createOrderItems,
-  getMyOrders,
-  getOrderById,
-  updateOrderToPaid,
-  updateOrderToDelivered,
-  getAllOrders,
+  httpCreateOrderItems,
+  httpgetMyOrders,
+  httpGetOrderById,
+  httpUpdateOrderToPaid,
+  httpUpdateOrderToDelivered,
+  httpGetAllOrders,
 } from "../controllers/order.controller.js";
 import { protect, admin } from "../services/authHandler.js";
 
@@ -14,15 +14,15 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(protect, createOrderItems)
-  .get(protect, admin, getAllOrders);
+  .post(protect, httpCreateOrderItems)
+  .get(protect, admin, httpGetAllOrders);
 
-router.route("/myorders").get(protect, getMyOrders);
+router.route("/myorders").get(protect, httpgetMyOrders);
 
-router.route("/:id").get(protect, getOrderById);
+router.route("/:id").get(protect, httpGetOrderById);
 
-router.route("/:id/pay").put(protect, updateOrderToPaid);
+router.route("/:id/pay").put(protect, httpUpdateOrderToPaid);
 
-router.route("/:id/deliver").put(protect, admin, updateOrderToDelivered);
+router.route("/:id/deliver").put(protect, admin, httpUpdateOrderToDelivered);
 
 export default router;
