@@ -18,7 +18,6 @@ const App = () => {
 
   useEffect(() => {
     if (localStorage.getItem("userInfo")) {
-      console.log("yes");
       profile().then((res) => (res.error ? dispatch(logout()) : null));
     }
   }, [profile, dispatch]);

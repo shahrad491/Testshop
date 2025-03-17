@@ -1,6 +1,16 @@
 import Product from "../models/product.mongo.js";
 import asyncHandler from "../services/asyncHandler.js";
 import { pSize } from "../services/pagination.js";
+import {
+  countDocuments,
+  getAllProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  createProductReview,
+  getTopProduct,
+} from "../models/product.model.js";
 
 // @desc Fetch all products
 // @route /api/products
@@ -14,16 +24,17 @@ const httpGetAllProducts = asyncHandler(async (req, res, next) => {
     ? { name: { $regex: req.query.keyword, $options: "i" } }
     : {};
 
-  const count = await Product.countDocuments({ ...keyword });
-
-  const products = await Product.find({ ...keyword })
-    .limit(pageSize)
-    .skip((page - 1) * pageSize);
-
-  res
-    .status(200)
-    .setHeader("Content-Type", "application/json")
-    .json({ products, page, pages: Math.ceil(count / pageSize) });
+  try {
+    const count = await countDocuments(keyword);
+    const products = await getAllProducts(keyword, pageSize, page);
+    res
+      .status(200)
+      .setHeader("Content-Type", "application/json")
+      .json({ products, page, pages: Math.ceil(count / pageSize) });
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
+  }
 });
 
 // @desc Fetch a products
@@ -32,7 +43,8 @@ const httpGetAllProducts = asyncHandler(async (req, res, next) => {
 // @access Public
 const httpGetOneProduct = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
-  const product = await Product.findById(id);
+
+  const product = await getProduct(id);
   if (!product) {
     res.status(404).setHeader("Content-Type", "application/json");
     throw new Error("Resource Was Not FOUND");
@@ -45,20 +57,9 @@ const httpGetOneProduct = asyncHandler(async (req, res, next) => {
 // @method POST
 // @access Private/Admin
 const httpCreateProduct = asyncHandler(async (req, res, next) => {
-  const product = {
-    name: "Sample name",
-    price: 0,
-    user: req.user._id,
-    image: "/images/samle.jpg",
-    brand: "Sample brand",
-    category: "Sample Category",
-    countInStock: 0,
-    numReviews: 0,
-    description: "Sample Description",
-  };
-
+  const userId = req.user._id;
   try {
-    await Product.create(product);
+    await createProduct(userId);
     res
       .status(201)
       .setHeader("Content-Type", "application/json")
@@ -74,32 +75,15 @@ const httpCreateProduct = asyncHandler(async (req, res, next) => {
 // @method PUT
 // @access Private/Admin
 const httpUpdateProducts = asyncHandler(async (req, res, next) => {
-  const { name, price, description, image, brand, category, countInStock } =
-    req.body;
+  const id = req.params.id;
+  try {
+    const updatedProduct = await updateProduct(id, req.body);
 
-  const product = await Product.findById(req.params.id);
-
-  if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
-
-    const updatedProduct = await product.save();
     res.status(200).setHeader("Content-Type", "application/json").json({
-      name: updatedProduct.name,
-      price: updatedProduct.price,
-      description: updatedProduct.description,
-      countInStock: updatedProduct.countInStock,
-      brand: updatedProduct.brand,
-      category: updatedProduct.category,
+      updatedProduct,
     });
-  } else {
-    res.status(404);
-    throw new Error("Product was not Found");
+  } catch (error) {
+    throw new Error(error);
   }
 });
 
@@ -108,17 +92,13 @@ const httpUpdateProducts = asyncHandler(async (req, res, next) => {
 // @method Delete
 // @access Private/Admin
 const httpDeleteProducts = asyncHandler(async (req, res, next) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const id = req.params.id;
+  const product = await deleteProduct(id);
 
   if (product) {
     res.status(200).setHeader("Content-Type", "application/json").json({
       message: "Product was deleted Successfully",
-      name: product.name,
-      price: product.price,
-      description: product.description,
-      countInStock: product.countInStock,
-      brand: product.brand,
-      category: product.category,
+      product,
     });
   } else {
     res.status(404);
@@ -132,38 +112,22 @@ const httpDeleteProducts = asyncHandler(async (req, res, next) => {
 // @access Private
 const httpCreateProductReview = asyncHandler(async (req, res, next) => {
   const { rating, comment } = req.body;
+  const { _id: userId, name } = req.user;
+  const { id: productId } = req.params;
+  if (!rating || !comment) {
+    res.status(406);
+    throw new Error("Please add a rating and a comment");
+  }
 
-  const product = await Product.findById(req.params.id);
-
-  if (product) {
-    const alreadyReviewed = product.reviews.find(
-      (res) => res.user.toString() == req.user._id.toString()
-    );
-    if (alreadyReviewed) {
-      res.status(409);
-      throw new Error("Product is already reviewed by the User");
-    }
-    const review = {
-      name: req.user.name,
-      rating: Number(rating),
-      comment,
-      user: req.user._id,
-    };
-    product.reviews.push(review);
-    product.numReviews = product.reviews.length;
-
-    product.rating =
-      product.reviews.reduce((acc, review) => acc + review.rating, 0) /
-      product.reviews.length;
-
-    await product.save();
+  try {
+    await createProductReview(productId, userId, name, rating, comment);
 
     res.status(201).setHeader("Content-Type", "application/json").json({
       message: "Product review was Created Successfully",
     });
-  } else {
-    res.status(404);
-    throw new Error("Product was not Found");
+  } catch (error) {
+    if (error.message.split(" ")[6] == "User") res.status(406);
+    next(error);
   }
 });
 
@@ -172,7 +136,7 @@ const httpCreateProductReview = asyncHandler(async (req, res, next) => {
 // @method GET
 // @access Public
 const httpGetTopProduct = asyncHandler(async (req, res, next) => {
-  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  const products = await getTopProduct();
   if (!products) {
     res.status(404).setHeader("Content-Type", "application/json");
     throw new Error("Resource Was Not FOUND");
