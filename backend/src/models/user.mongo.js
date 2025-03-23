@@ -29,13 +29,13 @@ userSchema.methods.matchPass = async function (enterPass) {
   return await bcrypt.compare(enterPass, this.password);
 };
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+userSchema.pre("findOneAndUpdate", async function (next) {
+  if (!this._update.password) {
     next();
   }
 
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  this._update.password = await bcrypt.hash(this._update.password, salt);
 });
 
 const User = mongoose.model("User", userSchema);

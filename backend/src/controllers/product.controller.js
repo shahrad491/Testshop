@@ -1,4 +1,3 @@
-import Product from "../models/product.mongo.js";
 import asyncHandler from "../services/asyncHandler.js";
 import { pSize } from "../services/pagination.js";
 import {

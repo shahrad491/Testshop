@@ -8,6 +8,10 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message;
 
+  if (err.code == 11000 && err.codeName == "DuplicateKey") {
+    statusCode = 409;
+    message = "Duplicate key error";
+  }
   if (err.name === "CastError" && err.kind === "ObjectId") {
     message = "Resource not Found";
     statusCode = 404;
