@@ -21,7 +21,7 @@ const HomeScreen = () => {
 
   return (
     <>
-      <Meta title={"Home"} />
+      <Meta title={"ProShop"} />
       {keyword ? (
         <Link to="/" className="btn btn-light mb-4">
           Go Back

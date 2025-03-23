@@ -10,6 +10,7 @@ import {
   usePayOrderMutation,
   useDeliverOrderMutation,
 } from "../slices/order.api.slice";
+import Meta from "../components/Meta";
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
@@ -54,6 +55,7 @@ const OrderScreen = () => {
     <Message varient="danger" message="Error loading order details" />
   ) : (
     <>
+      <Meta title="Order" />
       <h1>{orderId}</h1>
       <Row>
         <Col md={8}>

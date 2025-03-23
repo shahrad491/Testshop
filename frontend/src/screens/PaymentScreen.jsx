@@ -6,6 +6,7 @@ import { Button, Form, Col } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import CheckoutSteps from "../components/CheckoutSteps";
 import { savePaymentMethod } from "../slices/cart.slice";
+import Meta from "../components/Meta";
 
 const PaymentScreen = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const PaymentScreen = () => {
   };
   return (
     <>
+      <Meta title="Payment" />
       <FormContainer>
         <CheckoutSteps step1 step2 step3 />
         <h1>Payment Method</h1>

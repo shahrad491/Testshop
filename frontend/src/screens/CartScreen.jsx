@@ -14,6 +14,7 @@ import { FaTrash } from "react-icons/fa";
 
 import Message from "../components/Message";
 import { addToCart, removeFromCart } from "../slices/cart.slice";
+import Meta from "../components/Meta";
 
 const CartScreen = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const CartScreen = () => {
 
   return (
     <>
+      <Meta title={"Cart"} />
       <Link to={"/"}>
         <Button className="btn btn-light my-3">Go To Home Screen</Button>
       </Link>

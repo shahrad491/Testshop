@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import FormContainer from "../components/FormContainer";
 import CheckoutSteps from "../components/CheckoutSteps";
 import { saveShippingAddress } from "../slices/cart.slice";
+import Meta from "../components/Meta";
 
 const ShippingScreen = () => {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ const ShippingScreen = () => {
   };
   return (
     <>
+      <Meta title="Shipping" />
       <FormContainer>
         <CheckoutSteps step1 step2 />
         <h1>Shipping</h1>

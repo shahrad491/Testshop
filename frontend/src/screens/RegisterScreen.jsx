@@ -8,6 +8,7 @@ import FormContainer from "../components/FormContainer";
 import Loader from "../components/Loader";
 import { useRegisterMutation } from "../slices/userApi.slice";
 import { setCredentials } from "../slices/auth.slice";
+import Meta from "../components/Meta";
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -50,6 +51,7 @@ const RegisterScreen = () => {
   };
   return (
     <>
+      <Meta title="Register" />
       <FormContainer>
         <h1>Sing Up</h1>
         <Form onSubmit={submitHandler}>
