@@ -8,7 +8,7 @@ jobs:
   build:
     env:
       CI: true
-      Mongo_URL: mongodb://localhost:27017/proshop
+      MONGO_URL: mongodb://localhost:27017/proshop
     strategy:
       matrix:
         node-version: [22.x]
