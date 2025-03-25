@@ -12,7 +12,8 @@
     "install-client": "npm install --prefix frontend",
     "server": "npm run server --prefix backend",
     "client": "npm start --prefix frontend",
-    "application": "concurrently \"npm run server\" \"npm run client\""
+    "application": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "npm run test --prefix backend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
