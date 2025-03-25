@@ -10,19 +10,21 @@ import {
 } from "../controllers/order.controller.js";
 import { protect, admin } from "../services/authHandler.js";
 
-const router = express.Router();
+const orderRouter = express.Router();
 
-router
+orderRouter
   .route("/")
   .post(protect, httpCreateOrderItems)
   .get(protect, admin, httpGetAllOrders);
 
-router.route("/myorders").get(protect, httpgetMyOrders);
+orderRouter.route("/myorders").get(protect, httpgetMyOrders);
 
-router.route("/:id").get(protect, httpGetOrderById);
+orderRouter.route("/:id").get(protect, httpGetOrderById);
 
-router.route("/:id/pay").put(protect, httpUpdateOrderToPaid);
+orderRouter.route("/:id/pay").put(protect, httpUpdateOrderToPaid);
 
-router.route("/:id/deliver").put(protect, admin, httpUpdateOrderToDelivered);
+orderRouter
+  .route("/:id/deliver")
+  .put(protect, admin, httpUpdateOrderToDelivered);
 
-export default router;
+export default orderRouter;

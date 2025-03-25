@@ -2,7 +2,7 @@ import path from "path";
 import express from "express";
 import multer from "multer";
 
-const router = express.Router();
+const uploadRouter = express.Router();
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -34,7 +34,7 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 const uploadSingleImage = upload.single("image");
 
-router.route("/").post(uploadSingleImage, (req, res) => {
+uploadRouter.route("/").post(uploadSingleImage, (req, res) => {
   console.log(req.file.filename);
   res
     .status(200)
@@ -42,4 +42,4 @@ router.route("/").post(uploadSingleImage, (req, res) => {
     .json({ message: "image Uploaded", image: `/${req.file.path}` });
 });
 
-export default router;
+export default uploadRouter;
